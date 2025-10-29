@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+     // initializing supabase (creating client)
+     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
+     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="supa-sesh.js" defer></script>
+  <script src="track.js" defer></script>
+</head>
+
+<body>
+  <h2>Signup</h2>
+
+  <form id="signup-form">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <p id="message"></p>
+
+
+  <script>
+
+    // 2. Grab the form
+    const signupForm = document.getElementById("signup-form");
+    const message = document.getElementById("message");
+
+    // 3. Handle submit
+    // e stands for event (short for event object).
+    // When the form is submitted, the browser automatically creates an "event object" that contains information about the 
+    // submission (e.g., which element triggered it, timestamp, etc.).
+    // We often name it e or event.
+    // e.preventDefault() tells the browser “don’t do the default action for this event.”
+    // By default, submitting a form reloads the page and sends the form data to the server (using HTML’s built-in form submission).
+    // Since we want to handle the form ourselves with JavaScript (and call Supabase), we stop that default reload.
+    // 👉 Without preventDefault(), your page would refresh and you’d lose the JavaScript handling.
+     signupForm.addEventListener("submit", async (e) => {
+           e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          // 4. Call Supabase signUp
+          const { data, error } = await supabase.auth.signUp({
+             email,
+             password });
+
+          // 5. Show results
+          if (error) {
+             message.textContent = "Error: " + error.message;
+         } else {
+             message.textContent = "Success! Check your email to confirm signup.";
+             console.log("Signup response:", data) }
+    });
+
+  
+    
+    // Function that listens to click on button, not sure why I added it
+    // document.getElementById("createUserBtn").addEventListener("click", async () => {   });
+  </script>
+
+</body>
+</html>

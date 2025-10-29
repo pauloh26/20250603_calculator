@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROI Calculator</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+     // initializing supabase (creating client)
+     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
+     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="supa-sesh.js" defer></script>
+  <script src="track.js" defer></script>
+</head>
+
+<body>
+  <h1>ROI Calculator</h1>
+  <h3>Hello World!!</h3>
+    <p>Calculate your Return on Investment (ROI) easily!</p>
+
+  <input id="name" type="text" placeholder="Your First Name" required />
+  <input id="investment" type="number" placeholder="Investment (€)" />
+  <input id="ret" type="number" placeholder="Return (€)" />
+  <button id="calculateButton">Calculate ROI</button>
+
+
+  <script>
+
+    // I think this is an anonymous function that listens to click on button,
+    // and has another function (CalculateROI) as a parameter, which is defined further below.
+    document.getElementById('calculateButton').addEventListener('click', calculateROI);
+
+   // define a function (async because it calls supabase) to make a calculation, insert data to supabase, and more
+   async function calculateROI() {
+     const name = document.getElementById('name').value.trim();
+     const investment = parseFloat(document.getElementById('investment').value);
+     const ret = parseFloat(document.getElementById('ret').value);
+
+     // if no data entered, show alert message
+     if (!name || isNaN(investment) || isNaN(ret)) {
+       alert("Please enter your name, investment, and return.");        
+       return; };
+
+     // otherwise, calculate ROI
+     const roi = ((ret - investment) / investment) * 100;
+
+     // Define variable to be referenced later
+     const calcData = {
+      name,
+      investment,
+      ret,
+      roi: roi.toFixed(2) };
+
+          try {
+                // Save to Supabase
+                const { data, error } = await supabase
+                   .from("calculations")
+                   // globalSeshObject.globalSeshUser comes from supa-sesh.js file, it's a global object/variable
+                   .insert([{ user_id: globalSeshObject.globalSeshUser, name: name, investment: investment, ret: ret, roi: roi }])
+                   .select();
+                //This checks for errors returned by Supabase (e.g., table name is wrong, validation errors, permission issues).
+               if (error) {
+                   console.error("Failed to save:", error.message);
+                   alert(`Failed to save: ${error.message}`);
+                   return; } 
+              else {
+                   console.log("Saved:", data); 
+                   alert(`Saved: ${JSON.stringify(data, null, 2)}`);}} 
+        
+          catch (err) {
+                    console.error("Unexpected error:", err);
+                    alert(`Unexpected error: ${err.message || err}`);
+                    return; };
+
+     // Save to browser storage
+     localStorage.setItem("lastCalculation", JSON.stringify(calcData));
+
+     // Go to results page
+     window.location.href = "result.html";
+};
+  </script>
+
+</body>
+</html>

@@ -5,16 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calculation Result</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+     // initializing supabase (creating client)
+     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
+     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="supa-sesh.js" defer></script>
+  <script src="track.js" defer></script>
 </head>
 
 <body>
   <h1>Calculation Result</h1>
   <h2>Hello World!!</h2>
+     <div class="result-box" id="resultBox"></div>
+     <a href="calculator.html">New Calculation</a>
 
-     <div> id="resultBox"</div>
-     <a href="index.html">New Calculation</a>
+  <script>
+    // function that displays the values that were stored previously in the browser's local storage
+    window.onload = function() {
+    const data1 = JSON.parse(localStorage.getItem("lastCalculation"));
 
-  <script src="result.js"></script>
+        if (!data1) {
+          document.getElementById('resultBox').innerText = "No calculation data found."; }
+
+        else {
+         const message = `
+               Hello ${data1.name} 👋,
+               Your investment: €${data1.investment}
+               Your return: €${data1.ret}
+               Your ROI: ${data1.roi}%`;
+         document.getElementById("resultBox").innerText = message; } }
+
+  </script>
 
 </body>
 </html>

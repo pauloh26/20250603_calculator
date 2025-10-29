@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+     // initializing supabase (creating client)
+     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
+     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="supa-sesh.js" defer></script>
+  <script src="track.js" defer></script>
+  <style> body { font-family: Arial, sans-serif; margin: 2em; } .card { padding: 1em; border: 1px solid #ccc; margin-bottom: 1em; } </style>
+</head>
+
+<body>
+  <h1>Admin Dashboard</h1>
+  <div class="card" id="totalUsers"></div>
+  <div class="card" id="avgCalcsPerUser"></div>
+  <div class="card" id="avgPageDuration"></div>
+  <div class="card" id="countries"></div>
+
+  <script>
+ 
+    async function loadDashboard() {
+      // Total users
+      let { count: totalUsers } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true });
+
+      document.getElementById("totalUsers").innerText =
+        "Total users: " + totalUsers;
+
+      // Avg calculations per user
+      let { data: calcs } = await supabase.from("calculations").select("user_id");
+      let userMap = {};
+      calcs.forEach(c => userMap[c.user_id] = (userMap[c.user_id] || 0) + 1);
+      let avgCalcs = (calcs.length / Object.keys(userMap).length).toFixed(2);
+      document.getElementById("avgCalcsPerUser").innerText =
+        "Avg calcs per user: " + avgCalcs;
+
+      // Avg page duration
+      let { data: events } = await supabase.from("page_events").select("duration_seconds");
+      let totalDuration = events.reduce((a,b) => a + b.duration_seconds, 0);
+      let avgDuration = (totalDuration / events.length).toFixed(1);
+      document.getElementById("avgPageDuration").innerText =
+        "Avg time on page: " + avgDuration + "s";
+
+      // Countries (placeholder)
+      document.getElementById("countries").innerText =
+        "Countries: data collection WIP";
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

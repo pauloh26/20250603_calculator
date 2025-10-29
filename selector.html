@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantity Selector</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<!-- Product selection step/section -->
+<section id="selection">
+  <h2>Quantity Selector</h2>
+  <!-- Label for the quantity selector -->
+  <label for="quantity">Select quantity:</label>
+  <!--Create a slider (<input type="range">) where the user can select quantity between 1 and 10.-->
+  <input type="range" id="quantity" min="1" max="10" value="1" step="1">
+  <!-- Display the currently selected quantity in a <span> (quantityValue).-->
+  <p>Quantity: <span id="quantityValue">1</span></p>
+  <!-- Display the calculation result (quantity x 3) -->
+  <div class="result-box"> Result: <span id="result">3</span></div>
+  <!-- Confirm button to "submit" quantity -->
+  <button id="confirmBtn">Confirm & Go to Checkout</button>
+</section>
+
+
+<!-- Checkout step (hidden at first) -->
+<section id="checkout" style="display: none;">
+  <h2>Checkout</h2>
+  <p>Your selected quantity: <span id="checkoutQuantity"></span></p>
+  <p>Calculation (quantity × 3): <span id="checkoutResult"></span></p>
+</section>
+
+
+<script>
+    // Get references to HTML elements ---
+    const quantitySlider = document.getElementById("quantity");
+    const quantityValue = document.getElementById("quantityValue");
+    const resultBox = document.getElementById("result");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const checkoutSection = document.getElementById("checkout");
+    const checkoutQuantity = document.getElementById("checkoutQuantity");
+    const checkoutResult = document.getElementById("checkoutResult");
+
+    // Create dummy database (just an object for now) ---
+    const dummyDB = {};
+
+    // Update quantity and result live as slider moves ---
+    function updateCalculation() {
+        // Get current value from slider
+        const q = parseInt(quantitySlider.value);
+        // Update the displayed quantity
+        quantityValue.textContent = q;
+        // Perform calculation (quantity * 3) and update result on page
+        resultBox.textContent = q * 3;
+    }
+
+    // Run once on page load (so initial values show correctly) ---
+    updateCalculation();
+    // Listen for slider changes and update dynamically ---
+    quantitySlider.addEventListener("input", updateCalculation);
+
+    // Handle confirm button (submit step) ---
+    confirmBtn.addEventListener("click", () => {
+        // Save to dummy database
+        dummyDB.quantity = parseInt(quantitySlider.value);
+        dummyDB.result = dummyDB.quantity * 3;
+
+        // Hide selection step, show checkout step
+        document.getElementById("selection").style.display = "none";
+        checkoutSection.style.display = "block";
+
+        // Populate checkout with stored values
+        checkoutQuantity.textContent = dummyDB.quantity;
+        checkoutResult.textContent = dummyDB.result;
+    });
+  </script>
+
+
+</body>
+</html>

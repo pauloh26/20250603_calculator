@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login page</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+     // initializing supabase (creating client)
+     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
+     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="supa-sesh.js" defer></script>
+  <script src="track.js" defer></script>
+</head>
+
+<body>
+  <h2>Login as a guest</h2>
+  <button id="guestLoginBtn">Login now</button>
+
+
+
+
+  <script>
+    // Function that listens to click on login button, authenticates anonymously, and redirects to calculator page
+    document.getElementById("guestLoginBtn").addEventListener("click", async () => {
+        // should check for existing session before calling signInAnonymously(),
+        // should avoid creating new anonymous user every click
+        // globalSeshObject.globalSeshUser comes from supa-sesh.js file, it's a global object/variable
+        // Means if globalSeshObject.globalSeshUser is falsy (NULL, undefined, false, 0, "", NaN)
+        if (!globalSeshObject.globalSeshUser) {
+              // sign in anonymously, should create a supabase user with a unique 'user.id',
+              // the user should be treated similarly to logged-in users. 
+              const { data, error } = await supabase.auth.signInAnonymously();
+                   if (error) {
+                        console.error("Login failed, supabase returned error:", error.message);
+                        alert("supabase returned error, unable to log in anonymously." + JSON.stringify(error));
+                        return; }
+                   else {
+                        console.log("New anonymous user:", data.user.id);
+                        alert("New anonymous user: " + data.user.id);
+                        window.location.href = "calculator.html";
+                        return; // Make sure not to continue after redirect
+                     } }
+        // Means else if globalSeshObject.globalSeshUser is not falsy (see above for what is falsy)
+        else if (globalSeshObject.globalSeshUser) {
+              alert("Existing anonymous user: " + globalSeshObject.globalSeshUser);
+              window.location.href = "calculator.html"; }             
+
+      });
+  </script>
+
+</body>
+</html>
