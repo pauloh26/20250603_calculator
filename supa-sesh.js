@@ -5,7 +5,7 @@ const globalSeshObject = {
    globalSeshUser: null
 };
 
-// Function that fetches user session if authenticated, if not, redirected to loging page
+// Function that fetches user session if authenticated, if not, redirect to loging page
 async function getUserSession() {
       // try...catch is commonly used in JS to safely run code that might throw an error. 
       // If it does, the program doesn't crash — it jumps to the catch block.
@@ -28,11 +28,13 @@ async function getUserSession() {
          else if (data.session && data.session.user) {
             globalSeshObject.globalSeshUser = data.session.user.id
             alert("You are logged in as: "+ JSON.stringify(data, null, 2) + "with user id: " + data.session.user.id); }
+         else if (window.location.pathname.endsWith("login.html")) {
+            return; }   
          // No session found → redirect to login   
          // For example, if there is simply no active session (user not logged in), Supabase returns
          // error: null.....data: { session: null }
          else {
-            alert("You are not logged in. Redirecting to login...");
+            alert("You are not logged in. Redirecting you to login page");
             window.location.href = "login.html"; } }
       
       // err is a variable automatically provided by JavaScript in the catch block to represent the error..

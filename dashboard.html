@@ -20,39 +20,77 @@
 <body>
   <h1>Admin Dashboard</h1>
   <div class="card" id="totalUsers"></div>
-  <div class="card" id="avgCalcsPerUser"></div>
   <div class="card" id="avgPageDuration"></div>
+  <div class="card" id="avgCalcsPerUser"></div>
   <div class="card" id="countries"></div>
 
   <script>
  
-    async function loadDashboard() {
-      // Total users
-      let { count: totalUsers } = await supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true });
+    async function loadDashboard() {    
 
-      document.getElementById("totalUsers").innerText =
-        "Total users: " + totalUsers;
+   try {
+      // Try to query total profiles
+      const { data: proFiles, error: usersError } = await supabase.from("profiles").select("id");
+            if (usersError) {
+                  alert("There was a supabase related error fetching your total users" + usersError ); }
+            else if (proFiles) {
+                  // Display total users
+                  const totalUserss = proFiles.length;
+                  document.getElementById("totalUsers").innerText = "Total users: " + totalUserss; }
+            else {
+                  document.getElementById("totalUsers").innerText = "Total users: no data"; }
 
-      // Avg calculations per user
-      let { data: calcs } = await supabase.from("calculations").select("user_id");
-      let userMap = {};
-      calcs.forEach(c => userMap[c.user_id] = (userMap[c.user_id] || 0) + 1);
-      let avgCalcs = (calcs.length / Object.keys(userMap).length).toFixed(2);
-      document.getElementById("avgCalcsPerUser").innerText =
-        "Avg calcs per user: " + avgCalcs;
+      }   
+   catch (err) {
+        alert("Unexpected error fetching total users." + err);
+        }
 
-      // Avg page duration
-      let { data: events } = await supabase.from("page_events").select("duration_seconds");
-      let totalDuration = events.reduce((a,b) => a + b.duration_seconds, 0);
-      let avgDuration = (totalDuration / events.length).toFixed(1);
-      document.getElementById("avgPageDuration").innerText =
-        "Avg time on page: " + avgDuration + "s";
+
+    
+   try {
+      // Try to query duration from page_events
+      const { data: events, error:eventsError } = await supabase.from("page_events").select("duration_seconds");
+            if (eventsError) {
+                  alert("There was a supabase related error fetching duration from page_events" + eventsError ); }
+            else if (Array.isArray(events) && events.length > 0) {
+                  // Calculate avg page duration
+                  const totalDuration = events.reduce((a,b) => a + b.duration_seconds, 0);
+                  const avgDuration = (totalDuration / events.length).toFixed(1);           
+                  // Display avg page duration
+                  document.getElementById("avgPageDuration").innerText = "Avg time on page: " + avgDuration + "s"; }
+            else {
+                  document.getElementById("avgPageDuration").innerText = "Avg time on page: no data"; }
+        }   
+   catch (err) {
+        alert("Unexpected error fetching duration from page_events," + err);
+        }   
+
+
+
+   try {
+        // Try to fetch pre-aggregated metrics from the SQL view "dashboard_metrics", it's single row
+        const { data: metrics, error: metricsError } = await supabase.from('dashboard_metrics').select('*');
+            if (metricsError) {
+                  alert("There was a supabase related error fetching dashboard_metrics view" + metricsError ); }
+            else if (Array.isArray(metrics) && metrics.length > 0) {
+                  // Use the first row returned by the view
+                  const row = metrics[0];
+                  const totalCalculations = Number(row.total_calculations) || 0;
+                  const usersWithCalcs = Number(row.users_with_calcs) || 0;
+                  // Calculate and display avg calculations per user
+                  const avgCalcs = (totalCalculations / Math.max(usersWithCalcs, 1)).toFixed(2);
+                  document.getElementById("avgCalcsPerUser").innerText = "Avg calcs per user: " + avgCalcs; }
+            else {
+                  document.getElementById("avgCalcsPerUser").innerText = "Avg calcs per user: no data"; }
+            }      
+    catch (err) {
+                alert("Unexpected error fetching dashboard_metrics view" + err);
+       }       
+
+
 
       // Countries (placeholder)
-      document.getElementById("countries").innerText =
-        "Countries: data collection WIP";
+      document.getElementById("countries").innerText = "Countries: data collection WIP";
     }
 
     loadDashboard();
