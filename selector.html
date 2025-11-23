@@ -42,9 +42,6 @@
     const checkoutQuantity = document.getElementById("checkoutQuantity");
     const checkoutResult = document.getElementById("checkoutResult");
 
-    // Create dummy database (just an object for now) ---
-    const dummyDB = {};
-
     // Update quantity and result live as slider moves ---
     function updateCalculation() {
         // Get current value from slider
@@ -59,6 +56,9 @@
     updateCalculation();
     // Listen for slider changes and update dynamically ---
     quantitySlider.addEventListener("input", updateCalculation);
+
+    // Create dummy database (just an object for now) ---
+    const dummyDB = {};
 
     // Handle confirm button (submit step) ---
     confirmBtn.addEventListener("click", () => {

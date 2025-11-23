@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Selector app v2</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+     // initializing supabase (creating client)
+     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
+     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="supa-sesh.js" defer></script>
+  <script src="track.js" defer></script>
+</head>
+
+
+
+
+<body>
+
+<section id="selector">
+  <h2>Quantity Selector</h2>
+        <!-- Label for the quantity selector -->
+        <label for="quantity">Select quantity:</label>
+        <!--Create a slider (<input type="range">) where the user can select 1-10.-->
+        <input type="range" id="quantity" min="1" max="10" value="1" step="1">
+        <!-- Display the currently selected quantity in a <span> (quantityValue).-->
+        <p>Quantity: <span id="quantityValue">1</span></p>
+        <!-- Display the calculation result (quantity x 3) -->
+        <div class="result-box"> Result: <span id="result">3</span></div>
+        <!-- Confirm button to "submit" quantity -->
+        <button id="confirmBtn">Confirm & Go to Checkout</button>
+</section>
+
+
+
+<section id="calculator">
+  <h2>ROI calculator</h2>
+    <p>Calculate your Return on Investment (ROI) easily!</p>
+        <input id="name" type="text" placeholder="Your First Name" required />
+        <input id="investment" type="number" placeholder="Investment (€)" />
+        <input id="ret" type="number" placeholder="Return (€)" />
+        <button id="calculateButton">Calculate ROI</button>
+</section>
+
+
+
+<script>
+
+// Get references to HTML elements from section selector
+const quantitySlider = document.getElementById("quantity");
+const quantityValue = document.getElementById("quantityValue");
+const resultBox = document.getElementById("result");
+// define "q" outside the scope of the function below so I can reference it outside the function
+let q;
+// Update quantity and result live as slider moves ---
+function updateCalculation() {
+    // Get current value from slider
+    q = parseInt(quantitySlider.value);
+    // Update the displayed quantity
+    quantityValue.textContent = q;
+    // Perform calculation (quantity * 3) and update result on page
+    resultBox.textContent = q * 3;
+}
+
+// Run once on page load (so initial values show correctly) ---
+updateCalculation();
+// Listen for slider changes and update dynamically ---
+quantitySlider.addEventListener("input", updateCalculation);
+
+
+
+
+
+// I think this is an anonymous function that listens to click on button,
+// and has another function (CalculateROI) as a parameter, which is defined further below.
+document.getElementById('calculateButton').addEventListener('click', calculateROI);
+
+// Define a function (async because it calls supabase) to make a calculation, 
+// insert data to supabase, and more
+async function calculateROI() {
+    const name = document.getElementById('name').value.trim();
+    const investment = parseFloat(document.getElementById('investment').value);
+    const ret = parseFloat(document.getElementById('ret').value);
+     // If no data entered, show alert message
+     if (!name || isNaN(investment) || isNaN(ret)) {
+       alert("Please enter your name, investment, and return.");        
+       return; };
+
+     // otherwise, calculate ROI
+     const roi = ((ret - investment) / investment) * 100;
+
+     // Define variable to be referenced later
+     const calcData = {
+      q,
+      resultBox: parseFloat(resultBox.textContent).toFixed(2),
+      name,
+      investment,
+      ret,
+      roi: roi.toFixed(2) };
+
+    try {
+        // Save to Supabase
+        const { data, error } = await supabase
+            .from("calculations")
+            // globalSeshObject.globalSeshUser comes from supa-sesh.js file, it's a global object/variable
+            .insert([{ user_id: globalSeshObject.globalSeshUser, name: name, investment: investment, ret: ret, roi: roi }])
+            .select();
+        //This checks for errors returned by Supabase (e.g., table name is wrong, validation errors, 
+        // permission issues).
+        if (error) {
+            console.error("Failed to save:", error.message);
+            alert(`Failed to save: ${error.message}`);
+            return; } 
+        else if (data) {
+            console.log("Saved:", data); 
+            alert(`Saved: ${JSON.stringify(data, null, 2)}`); }
+        else {
+            console.log("No data found: ", data); 
+            alert(`No data found: ${JSON.stringify(data, null, 2)}`);}
+        } 
+
+    catch (err) {
+            console.error("Unexpected error:", err);
+            alert(`Unexpected error: ${err.message || err}`);
+            return; };
+
+     // Save to browser storage
+     localStorage.setItem("lastCalculation", JSON.stringify(calcData));
+
+     // Go to results page
+     window.location.href = "result.html";
+};
+  </script>
+
+</body>
+</html>

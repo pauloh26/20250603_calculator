@@ -32,10 +32,14 @@
 
         else {
          const message = `
-               Hello ${data1.name} 👋,
+               Hello  👋,
+               Your calculation name: ${data1.name}
+               Quantity selected: ${data1.q}
+               Result: ${data1.resultBox}
                Your investment: €${data1.investment}
                Your return: €${data1.ret}
                Your ROI: ${data1.roi}%`;
+
          document.getElementById("resultBox").innerText = message; } }
 
   </script>
