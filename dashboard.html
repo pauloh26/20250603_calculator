@@ -8,9 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
      // initializing supabase (creating client)
-     const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
-     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjbHZubWhlYnVxeHJvaGJodXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MjEyNDMsImV4cCI6MjA2NjE5NzI0M30.zbQfX7FgPwkEbv5-3thS_-bzv9T7KjhWE35xKKzb9ZI";
-     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_URL = "https://pclvnmhebuqxrohbhuxe.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_DUqu-lqIItVEHj7EGefIng_74qJN-w5";
+    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   </script>
   <script src="supa-sesh.js" defer></script>
   <script src="track.js" defer></script>
@@ -30,7 +30,7 @@
 
    try {
       // Try to query total profiles
-      const { data: proFiles, error: usersError } = await supabase.from("profiles").select("id");
+      const { data: proFiles, error: usersError } = await window.supabaseClient.from("profiles").select("id");
             if (usersError) {
                   alert("There was a supabase related error fetching your total users" + usersError ); }
             else if (proFiles) {
@@ -49,7 +49,7 @@
     
    try {
       // Try to query duration from page_events
-      const { data: events, error:eventsError } = await supabase.from("page_events").select("duration_seconds");
+      const { data: events, error:eventsError } = await window.supabaseClient.from("page_events").select("duration_seconds");
             if (eventsError) {
                   alert("There was a supabase related error fetching duration from page_events" + eventsError ); }
             else if (Array.isArray(events) && events.length > 0) {
@@ -69,7 +69,7 @@
 
    try {
         // Try to fetch pre-aggregated metrics from the SQL view "dashboard_metrics", it's single row
-        const { data: metrics, error: metricsError } = await supabase.from('dashboard_metrics').select('*');
+        const { data: metrics, error: metricsError } = await window.supabaseClient.from('dashboard_metrics').select('*');
             if (metricsError) {
                   alert("There was a supabase related error fetching dashboard_metrics view" + metricsError ); }
             else if (Array.isArray(metrics) && metrics.length > 0) {

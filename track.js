@@ -28,7 +28,7 @@ window.addEventListener("beforeunload", async () => {
 
   try {
                 // Save to Supabase
-                const { data, error } = await supabase
+                const { data, error } = await window.supabaseClient
                    .from("page_events")
                    // globalSeshObject.globalSeshUser comes from supa-sesh.js file, it's a global object/variable
                    .insert([

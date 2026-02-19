@@ -15,7 +15,7 @@ async function getUserSession() {
       // If an error occurs inside the try block, execution jumps to the catch block.
       // The error object is automatically passed to the catch block as the variable err.
       try{
-         const { data, error } = await supabase.auth.getSession();
+         const { data, error } = await window.supabaseClient.auth.getSession();
          // Check for expected errors returned by Supabase, which I guess means the request went through at least, but something
          // went wrong (e.g., network error, invalid API key, table name is wrong, validation errors, permission issues).
          // Good practice to check for "error" first, then check if data.session exists (means user is loged in)... 
@@ -44,8 +44,7 @@ async function getUserSession() {
       // and any other runtime error not handled by Supabase's error property.
       catch (err) {
         console.error("Unexpected error fetching session:", err);
-        alert("Unexpected error. Redirecting to login..." + err);
-        window.location.href = "login.html"; }
+        alert("Unexpected error: " + err); }
     }
 
 // Call function described above

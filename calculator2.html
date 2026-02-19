@@ -33,47 +33,51 @@
     // and has another function (CalculateROI) as a parameter, which is defined further below.
     document.getElementById('calculateButton').addEventListener('click', calculateROI);
 
-   // define a function (async because it calls supabase) to make a calculation, insert data to supabase, and more
+   // Define a function (async because it calls supabase) to make a calculation,
+   // send data to the server, and more
    async function calculateROI() {
      const name = document.getElementById('name').value.trim();
      const investment = parseFloat(document.getElementById('investment').value);
      const ret = parseFloat(document.getElementById('ret').value);
 
-     // if no data entered, show alert message
+     // If no data entered, show alert message
      if (!name || isNaN(investment) || isNaN(ret)) {
        alert("Please enter your name, investment, and return.");        
        return; };
 
-     // otherwise, calculate ROI
+     // Otherwise, calculate ROI
      const roi = ((ret - investment) / investment) * 100;
 
-     // Define variable to be referenced later
+     // Define variable (or object?) to be referenced later
      const calcData = {
       name,
       investment,
       ret,
       roi: roi.toFixed(2) };
 
-          try {
-                // Save to Supabase
-                const { data, error } = await window.supabaseClient
-                   .from("calculations")
-                   // globalSeshObject.globalSeshUser comes from supa-sesh.js file, it's a global object/variable
-                   .insert([{ user_id: globalSeshObject.globalSeshUser, name: name, investment: investment, ret: ret, roi: roi }])
-                   .select();
-                //This checks for errors returned by Supabase (e.g., table name is wrong, validation errors, permission issues).
-               if (error) {
-                   console.error("Failed to save:", error.message);
-                   alert(`Failed to save: ${error.message}`);
-                   return; } 
-              else {
-                   console.log("Saved:", data); 
-                   alert(`Saved: ${JSON.stringify(data, null, 2)}`);}} 
-        
-          catch (err) {
-                    console.error("Unexpected error:", err);
-                    alert(`Unexpected error: ${err.message || err}`);
-                    return; };
+
+      // Here goes the block I am swaping to manage the new Vercel setup
+      try {
+        const res = await fetch('/api/server-logic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: globalSeshObject.globalSeshUser, name: name, investment: investment, ret: ret, roi: roi })
+      });
+
+        // Maybe here I want to display in the console or alert the whole json I get as a response? 
+        // I guess in case supabase returns an error, this "data" const below will get that error assigned
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+
+      } catch (err) {
+        alert(err.message);
+      }
+
+
 
      // Save to browser storage
      localStorage.setItem("lastCalculation", JSON.stringify(calcData));
